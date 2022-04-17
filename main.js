@@ -2,19 +2,30 @@ const dotenv = require('dotenv').config();
 const SpotifyWebApi = require('spotify-web-api-node');
 const electron = require('electron');
 
-//console.log(process.env.CLIENT_ID);
+let ticketKey = process.env.TICKETMASTER_CONSUMER_KEY;
+
 let spotifyApi = new SpotifyWebApi({
-  clientId: process.env.CLIENT_ID,
-  clientSecret: process.env.CLIENT_SECRET,
+  clientId: process.env.SPOTIFY_CLIENT_ID,
+  clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
   redirectUri: 'https://localhost'
 });
 let scope = ['user-top-read'],
   state = 'some-state';
 
-let authorizeURL = spotifyApi.createAuthorizeURL(scope, state);
-let authCode = '';
+const authorizeURL = spotifyApi.createAuthorizeURL(scope, state);
+let topArtistsList = [];
+
+function createMainWindow() {
+  let mainWin = new electron.BrowserWindow({
+    width: 800,
+    height: 600
+  });
+
+  mainWin.loadFile('index.html');
+}
 
 function createAuthWindow() {
+  let authCode = '';
   let authWindow = new electron.BrowserWindow({
     width: 800,
     height: 600,
@@ -40,13 +51,10 @@ function createAuthWindow() {
     authCode = url.substr(firstIndex, secondIndex);
     authCode = authCode.substr(0, authCode.indexOf("&state"));
 
-    //console.log('Is this working?');
-    //console.log(authCode);
-
     callback({
       cancel: false
     });
-    //authWindow.close();
+
     getAccessToken(authCode);
   });
   authWindow.webContents.on('did-get-redirect-request', function(event, oldUrl, newUrl) {
@@ -54,13 +62,13 @@ function createAuthWindow() {
     console.log(newUrl);
   });
 
+  //authWindow.close();
   authWindow.on('closed', function() {
     authWindow = null;
   });
-  //getAccessToken(authCode);
 }
 
-function getAccessToken(authCode){
+async function getAccessToken(authCode){
   spotifyApi.authorizationCodeGrant(authCode).then(
     function(data) {
      //console.log('The token expires in ' + data.body['expires_in']);
@@ -70,25 +78,16 @@ function getAccessToken(authCode){
      // Set the access token on the API object to use it in later calls
      spotifyApi.setAccessToken(data.body['access_token']);
      spotifyApi.setRefreshToken(data.body['refresh_token']);
-     /*
-     spotifyApi.getMe().then(
-       function(data){
-         console.log('Some user info: ', data.body);
-       }, function(err){
-         console.log('error getting user info: ', err);
-       }
-     );
-     */
+
      spotifyApi.getMyTopArtists().then(
        function(data){
          let topArtists = data.body.items;
-         let topArtistsNameOnly = [];
          for(i in topArtists){
-           console.log(topArtists[i]);
-           topArtistsNameOnly += topArtists[i].name +' ';
+           //console.log(topArtists[i]);
+           topArtistsList += topArtists[i].name +' ';
          }
          //console.log(topArtists);
-         console.log("User top artists: ", topArtistsNameOnly);
+         console.log("User top artists: ", topArtistsList);
        }, function (err){
          console.log("error getting user top artists: ", err);
        }
@@ -98,6 +97,21 @@ function getAccessToken(authCode){
      console.log('Something went wrong!', err);
    }
   );
+  //return topArtistsList;
 }
 //electron.app.commandLine.appendSwitch('host-rules', 'MAP * 127.0.0.1');
-electron.app.on("ready", createAuthWindow);
+electron.app.on("ready", () => {
+  createMainWindow();
+
+  electron.app.on('window-all-closed', () => {
+    if(process.platform !== 'darwin'){
+      electron.app.quit();
+    }
+  });
+
+  electron.app.on('activate', () => {
+    if(BrowserWindow.getAllWindows().length === 0){
+      createMainWindow();
+    }
+  });
+});
