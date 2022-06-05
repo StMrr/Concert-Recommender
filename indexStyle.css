@@ -1,0 +1,7 @@
+.flex-button-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 450px;
+  border: 3px black;
+}

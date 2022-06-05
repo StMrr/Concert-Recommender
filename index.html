@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="indexStyle.css">
+    <script src="./main.js"></script>
+    <title>Welcome!</title>
+  </head>
+  <body>
+    <div class="flex-button-center">
+      <button id="startButton" type="button">Lets Get Started!</button>
+    </div>
+  </body>
+  <script>
+    const ipcRenderer = require('electron').ipcRenderer;
+
+    const btnclick = document.getElementById('startButton');
+    btnclick.addEventListener('click', function() {
+      let arg = "secondparam";
+      ipcRenderer.send('btnclick', arg);
+    });
+    ipcRenderer.on('btnclick-task-finished', function(event, param) {
+      console.log('loaded the window');
+    });
+  </script>
+</html>
