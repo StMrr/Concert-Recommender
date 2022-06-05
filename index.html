@@ -7,19 +7,32 @@
   </head>
   <body>
     <div class="flex-button-center">
-      <button id="startButton" type="button">Lets Get Started!</button>
+      <button id="startButton" type="button">Lets Get Your Spotify Info!</button>
+      <button id="TckMstButton" type="button">Lets Get Some Concerts!</button>
     </div>
   </body>
   <script>
     const ipcRenderer = require('electron').ipcRenderer;
 
-    const btnclick = document.getElementById('startButton');
-    btnclick.addEventListener('click', function() {
+    const firstbtnclick = document.getElementById('startButton');
+    const secbtnclick = document.getElementById('TckMstButton');
+
+    firstbtnclick.addEventListener('click', function() {
       let arg = "secondparam";
-      ipcRenderer.send('btnclick', arg);
+      ipcRenderer.send('firstbtnclick', arg);
     });
-    ipcRenderer.on('btnclick-task-finished', function(event, param) {
+
+    secbtnclick.addEventListener('click', function() {
+      let arg = "secondparam";
+      ipcRenderer.send('secbtnclick', arg);
+    });
+
+    ipcRenderer.on('firstbtnclick-task-finished', function(event, param) {
       console.log('loaded the window');
+    });
+
+    ipcRenderer.on('secbtnclick-task-finished', function(event, param) {
+      console.log('loaded the list');
     });
   </script>
 </html>

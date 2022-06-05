@@ -81,7 +81,9 @@ async function getAccessToken(authCode){
        console.log('Something went wrong!', err);
      }
     );
-  //return topArtistsList;
 }
 
-module.exports = {createAuthWindow, getAccessToken};
+function printArtistList (){
+  console.log(topArtistsList);
+}
+module.exports = {createAuthWindow, getAccessToken, printArtistList};

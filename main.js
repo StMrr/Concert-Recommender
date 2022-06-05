@@ -31,13 +31,19 @@ function createMainWindow() {
   });
 
   mainWin.loadFile('index.html');
-  //mainWin.webContents.openDevTools();
+  mainWin.webContents.openDevTools();
 }
 
-ipcMain.on("btnclick", async (event, arg) => {
+ipcMain.on("firstbtnclick", async (event, arg) => {
   await helperFuncs.createAuthWindow();
   console.log('testing');
-  event.sender.send("btnclick-task-finished", "yes");
+  event.sender.send("firstbtnclick-task-finished", "yes");
+});
+
+ipcMain.on("secbtnclick", async (event, arg) => {
+  helperFuncs.printArtistList();
+  console.log('testing');
+  event.sender.send("secbtnclick-task-finished", "yes");
 });
 
 electron.app.on("ready", () => {
