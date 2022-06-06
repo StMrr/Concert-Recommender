@@ -40,9 +40,6 @@ async function createAuthWindow() {
         authWindow.hide();
         //Promise.resolve(authCode).then(getAccessToken(authCode))
         getAccessToken(authCode);
-      //  authWindow.close();
-        //authWindow.location.href = 'index.html'
-        //setTimeout(function() { authWindow.close;}, 3000);
       }else {
         authWindow.close()
         sendError();
@@ -66,12 +63,8 @@ async function getAccessToken(authCode){
          function(data){
            let topArtists = data.body.items;
            for(i in topArtists){
-             //console.log(topArtists[i].name);
              topArtistsList += topArtists[i].name +' ';
            }
-           //console.log(topArtists);
-           console.log("User top artists: ", topArtistsList);
-
          }, function (err){
            console.log("error getting user top artists: ", err);
          }

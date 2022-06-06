@@ -7,6 +7,7 @@
   </head>
   <body>
     <div class="flex-button-center">
+      <button id="closeButton" type="button">Close The Program</button>
       <button id="startButton" type="button">Lets Get Your Spotify Info!</button>
       <button id="TckMstButton" type="button">Lets Get Some Concerts!</button>
     </div>
@@ -16,6 +17,7 @@
 
     const firstbtnclick = document.getElementById('startButton');
     const secbtnclick = document.getElementById('TckMstButton');
+    const closebtnclick = document.getElementById('closeButton');
 
     firstbtnclick.addEventListener('click', function() {
       let arg = "secondparam";
@@ -27,12 +29,21 @@
       ipcRenderer.send('secbtnclick', arg);
     });
 
+    closebtnclick.addEventListener('click', function() {
+      let arg = "secondparam";
+      ipcRenderer.send('closebtnclick', arg);
+    });
+
     ipcRenderer.on('firstbtnclick-task-finished', function(event, param) {
       console.log('loaded the window');
     });
 
     ipcRenderer.on('secbtnclick-task-finished', function(event, param) {
       console.log('loaded the list');
+    });
+
+    ipcRenderer.on('closebtnclick-task-finished', function(event, param) {
+      console.log('Closing...');
     });
   </script>
 </html>

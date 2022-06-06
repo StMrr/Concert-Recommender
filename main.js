@@ -1,22 +1,7 @@
-const dotenv = require('dotenv').config();
-const SpotifyWebApi = require('spotify-web-api-node');
 const electron = require('electron');
 const path = require('path');
 const {ipcMain} = require('electron');
 const helperFuncs = require('./helperFuncs.js')
-
-let ticketKey = process.env.TICKETMASTER_CONSUMER_KEY;
-
-let spotifyApi = new SpotifyWebApi({
-  clientId: process.env.SPOTIFY_CLIENT_ID,
-  clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-  redirectUri: 'https://localhost:8000/callback'
-});
-let scope = ['user-top-read'],
-  state = 'some-state';
-
-const authorizeURL = spotifyApi.createAuthorizeURL(scope, state);
-let topArtistsList = [];
 
 function createMainWindow() {
   let mainWin = new electron.BrowserWindow({
@@ -26,7 +11,6 @@ function createMainWindow() {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true
-      //preload: path.join(__dirname, 'helperFuncs.js')
     }
   });
 
@@ -46,6 +30,11 @@ ipcMain.on("secbtnclick", async (event, arg) => {
   event.sender.send("secbtnclick-task-finished", "yes");
 });
 
+ipcMain.on("closebtnclick", async (event, arg) => {
+  electron.app.quit();
+  event.sender.send("closebtnclick-task-finished", "yes");
+});
+
 electron.app.on("ready", () => {
   createMainWindow();
 
@@ -60,9 +49,4 @@ electron.app.on("ready", () => {
       createMainWindow();
     }
   });
-/*
-  electron.app.on('window-all-closed', () => {
-    app.quit();
-  });
-*/
 });
