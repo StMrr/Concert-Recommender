@@ -1,8 +1,9 @@
 const dotenv = require('dotenv').config();
 const SpotifyWebApi = require('spotify-web-api-node');
 const electron = require('electron');
+const axios = require('axios');
 
-let ticketKey = process.env.TICKETMASTER_CONSUMER_KEY;
+const ticketKey = process.env.TICKETMASTER_CONSUMER_KEY;
 
 let spotifyApi = new SpotifyWebApi({
   clientId: process.env.SPOTIFY_CLIENT_ID,
@@ -13,7 +14,8 @@ let scope = ['user-top-read'],
   state = 'some-state';
 
 const authorizeURL = spotifyApi.createAuthorizeURL(scope, state);
-let topArtistsList = [];
+let topArtistsList = '';
+let concertsList = [];
 
 async function createAuthWindow() {
   let authCode = '';
@@ -62,8 +64,14 @@ async function getAccessToken(authCode){
        spotifyApi.getMyTopArtists().then(
          function(data){
            let topArtists = data.body.items;
+           //topArtists.forEach(function(artist) {
+            //  topArtistsList += artist.name;
+           //});
+           //console.log(topArtistsList);
+          // console.log(topArtists[0].name);
            for(i in topArtists){
-             topArtistsList += topArtists[i].name +' ';
+             //console.log(topArtists[i].name[i]);
+             topArtistsList += topArtists[i].name+'\t';
            }
          }, function (err){
            console.log("error getting user top artists: ", err);
@@ -76,7 +84,43 @@ async function getAccessToken(authCode){
     );
 }
 
-function printArtistList (){
-  console.log(topArtistsList);
+async function lookUpConcerts (){
+  let actualList = topArtistsList.split('\t');
+  for (let i = 0; i < (actualList.length)-1; i++) {
+    let artistName = actualList[i].replace(/\s+/g, '%20');
+    let random = Math.floor(Math.random() * 7);
+    axios.get('https://app.ticketmaster.com/discovery/v2/events?apikey='
+    + ticketKey + '&keyword='+artistName +'&locale=*&countryCode=US')
+    .then(response => {
+      if(response.data.hasOwnProperty('_embedded')){
+        let random = Math.floor(Math.random() * (Object.keys(response.data._embedded.events).length));
+        console.log('Concert added for: '+artistName + ' number of events: ' + Object.keys(response.data._embedded.events).length);
+        console.log('event #' + random);
+        //console.log(response.data._embedded.events[random]);
+        console.log(response.data._embedded.events[random].id);
+        concertsList += response.data._embedded.events[random].id + '\t';
+      }else{
+        console.log('no event for: ' + artistName);
+      }
+    })
+    .catch(error => {
+      console.log(error);
+    });
+    await sleep(1000);
+  };
+  console.log(concertsList);
 }
-module.exports = {createAuthWindow, getAccessToken, printArtistList};
+
+function testArtistList() {
+  let actualList = topArtistsList.split('\t');
+  console.log(actualList[0]);
+  for(i in actualList){
+    console.log(actualList[i]);
+  }
+}
+
+const sleep = (milliseconds) => {
+  return new Promise(resolve => setTimeout(resolve, milliseconds))
+};
+
+module.exports = {createAuthWindow, getAccessToken, lookUpConcerts, testArtistList};

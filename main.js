@@ -25,8 +25,9 @@ ipcMain.on("firstbtnclick", async (event, arg) => {
 });
 
 ipcMain.on("secbtnclick", async (event, arg) => {
-  helperFuncs.printArtistList();
-  console.log('testing');
+  //await helperFuncs.lookUpConcerts();
+  await helperFuncs.lookUpConcerts();
+  console.log('waiting');
   event.sender.send("secbtnclick-task-finished", "yes");
 });
 
