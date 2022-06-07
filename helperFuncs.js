@@ -15,7 +15,7 @@ let scope = ['user-top-read'],
 
 const authorizeURL = spotifyApi.createAuthorizeURL(scope, state);
 let topArtistsList = '';
-let concertsList = [];
+let artistInfo = [];
 
 async function createAuthWindow() {
   let authCode = '';
@@ -86,7 +86,7 @@ async function getAccessToken(authCode){
 
 async function lookUpConcerts (){
   let actualList = topArtistsList.split('\t');
-  for (let i = 0; i < (actualList.length)-1; i++) {
+  for (let i = 0; i < (actualList.length) - 1; i++) {
     let artistName = actualList[i].replace(/\s+/g, '%20');
     let random = Math.floor(Math.random() * 7);
     axios.get('https://app.ticketmaster.com/discovery/v2/events?apikey='
@@ -96,9 +96,13 @@ async function lookUpConcerts (){
         let random = Math.floor(Math.random() * (Object.keys(response.data._embedded.events).length));
         console.log('Concert added for: '+artistName + ' number of events: ' + Object.keys(response.data._embedded.events).length);
         console.log('event #' + random);
-        //console.log(response.data._embedded.events[random]);
-        console.log(response.data._embedded.events[random].id);
-        concertsList += response.data._embedded.events[random].id + '\t';
+        artistInfo.push({
+          name: actualList[i],
+          concertName:response.data._embedded.events[random].name,
+          concertImage:response.data._embedded.events[random].images[0].url,
+          concertDate:response.data._embedded.events[random].dates.start.localDate,
+          concertID: response.data._embedded.events[random].id
+        })
       }else{
         console.log('no event for: ' + artistName);
       }
@@ -108,19 +112,11 @@ async function lookUpConcerts (){
     });
     await sleep(1000);
   };
-  console.log(concertsList);
-}
-
-function testArtistList() {
-  let actualList = topArtistsList.split('\t');
-  console.log(actualList[0]);
-  for(i in actualList){
-    console.log(actualList[i]);
-  }
+  console.log(artistInfo);
 }
 
 const sleep = (milliseconds) => {
   return new Promise(resolve => setTimeout(resolve, milliseconds))
 };
 
-module.exports = {createAuthWindow, getAccessToken, lookUpConcerts, testArtistList};
+module.exports = {createAuthWindow, getAccessToken, lookUpConcerts};
