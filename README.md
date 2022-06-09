@@ -4,7 +4,7 @@
 This Electron application gives users a collection of concerts that they may be interested in, based off of their top artists on their Spotify account.
 
 ## How To Use
-To run this program from source you'll need to have Git and Node.js installed, your own API keys for both the [Spotify](https://developer.spotify.com/) and [Ticketmaster](https://developer.ticketmaster.com/) APIs, and then create a .env file like the .env.example file to place your API keys into.
+To run this program from source you'll need to have Git and Node.js installed, your own API keys for both the [Spotify](https://developer.spotify.com/) and [Ticketmaster](https://developer.ticketmaster.com/) APIs, and then create a .env file (setup like the .env.example file) to place your API keys into.
 
 ```bash
 #Clone the repository
