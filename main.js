@@ -3,32 +3,34 @@ const path = require('path');
 const {ipcMain} = require('electron');
 const helperFuncs = require('./helperFuncs.js')
 
+global.artistInfo = [];
+
 function createMainWindow() {
   let mainWin = new electron.BrowserWindow({
     width: 800,
     height: 600,
+    autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      enableRemoteModule: true
+      preload: path.join(__dirname, 'helperFuncs.js')
     }
   });
-
   mainWin.loadFile('index.html');
-  mainWin.webContents.openDevTools();
+  mainWin.webContents.on('new-window', function(e, url) {
+    e.preventDefault();
+    electron.shell.openExternal(url); //urls will be opened in default browser
+  });
 }
 
 ipcMain.on("firstbtnclick", async (event, arg) => {
   await helperFuncs.createAuthWindow();
-  console.log('testing');
   event.sender.send("firstbtnclick-task-finished", "yes");
 });
 
 ipcMain.on("secbtnclick", async (event, arg) => {
-  //await helperFuncs.lookUpConcerts();
   await helperFuncs.lookUpConcerts();
-  console.log('waiting');
-  event.sender.send("secbtnclick-task-finished", "yes");
+  event.sender.send("secbtnclick-task-finished", artistInfo);
 });
 
 ipcMain.on("closebtnclick", async (event, arg) => {
@@ -40,6 +42,7 @@ electron.app.on("ready", () => {
   createMainWindow();
 
   electron.app.on('window-all-closed', () => {
+    //setting up proper closing behavior for all Operating Systems
     if(process.platform !== 'darwin'){
       electron.app.quit();
     }

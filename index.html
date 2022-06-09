@@ -3,11 +3,14 @@
   <head>
     <link rel="stylesheet" href="indexStyle.css">
     <script src="./main.js"></script>
-    <title>Welcome!</title>
+    <title>Concert Recommender</title>
   </head>
   <body>
-    <div class="flex-button-center">
-      <button id="closeButton" type="button">Close The Program</button>
+    <button id="closeButton" class="closeButton" type="button">Close The Program</button>
+    <div id="progress">
+      <div id="progress-spinner"></div>
+    </div>
+    <div id="initialButtons" class="flex-button-center">
       <button id="startButton" type="button">Lets Get Your Spotify Info!</button>
       <button id="TckMstButton" type="button">Lets Get Some Concerts!</button>
     </div>
@@ -20,13 +23,16 @@
     const closebtnclick = document.getElementById('closeButton');
 
     firstbtnclick.addEventListener('click', function() {
-      let arg = "secondparam";
+      firstbtnclick.style.visibility = 'hidden';
+      let arg = "secondparam"; //ipcRenderer.send and ipcMain.on require a second argument
       ipcRenderer.send('firstbtnclick', arg);
     });
 
     secbtnclick.addEventListener('click', function() {
       let arg = "secondparam";
       ipcRenderer.send('secbtnclick', arg);
+      document.getElementById('progress').style.visibility = 'visible';
+      document.getElementById('progress-spinner').style.visibility = 'visible';
     });
 
     closebtnclick.addEventListener('click', function() {
@@ -38,12 +44,77 @@
       console.log('loaded the window');
     });
 
+    //updating the main window with a table filled with concert information
     ipcRenderer.on('secbtnclick-task-finished', function(event, param) {
-      console.log('loaded the list');
+      let artistInfoArr = param;
+      document.getElementById('initialButtons').remove();
+      let newPage = document.createElement('div');
+      let infoTable = document.createElement('table');
+      infoTable.setAttribute('class', 'only-table');
+
+      let tableHeader = document.createElement('thead');
+      let tableHeaderRow = document.createElement('tr');
+      let headingCell1 = document.createElement('td');
+      let headingText1 = document.createTextNode('Artist Name')
+      headingCell1.appendChild(headingText1);
+      tableHeaderRow.appendChild(headingCell1);
+      let headingCell2 = document.createElement('td');
+      let headingText2 = document.createTextNode('Concert Name')
+      headingCell2.appendChild(headingText2);
+      tableHeaderRow.appendChild(headingCell2);
+      let headingCell3 = document.createElement('td');
+      let headingText3 = document.createTextNode('Concert Image')
+      headingCell3.appendChild(headingText3);
+      tableHeaderRow.appendChild(headingCell3);
+      let headingCell4 = document.createElement('td');
+      let headingText4 = document.createTextNode('Concert Date')
+      headingCell4.appendChild(headingText4);
+      tableHeaderRow.appendChild(headingCell4);
+      let headingCell5 = document.createElement('td');
+      let headingText5 = document.createTextNode('Concert URL')
+      headingCell5.appendChild(headingText5);
+      tableHeaderRow.appendChild(headingCell5);
+      let headingCell6 = document.createElement('td');
+      let headingText6 = document.createTextNode('Concert ID')
+      headingCell6.appendChild(headingText6);
+      tableHeaderRow.appendChild(headingCell6);
+
+      tableHeader.appendChild(tableHeaderRow);
+      infoTable.appendChild(tableHeader);
+      for(i in artistInfoArr){
+        let row = document.createElement('tr');
+        for(j in artistInfoArr[i]){
+          let cell = document.createElement('td');
+          if(j == "concertURL"){
+            let cellLink = document.createElement('a');
+            cellLink.target = "_blank";
+            cellLink.setAttribute("href", artistInfoArr[i][j]);
+            let cellText = document.createTextNode("Link");
+            cellLink.appendChild(cellText);
+            cell.appendChild(cellLink);
+          }else if(j == "concertImage"){
+            let cellText = document.createElement('img');
+            cellText.src = artistInfoArr[i][j];
+            cellText.style.height = "100px";
+            cellText.style.width = "100px";
+            cell.appendChild(cellText);
+          }else{
+            let cellText = document.createTextNode(artistInfoArr[i][j]);
+            cell.appendChild(cellText);
+          }
+          row.appendChild(cell);
+        }
+        infoTable.appendChild(row);
+      }
+      document.body.appendChild(newPage);
+      newPage.appendChild(infoTable);
+      document.getElementById('progress').remove();
+      document.getElementById('progress-spinner').remove();
     });
 
     ipcRenderer.on('closebtnclick-task-finished', function(event, param) {
       console.log('Closing...');
     });
+
   </script>
 </html>
