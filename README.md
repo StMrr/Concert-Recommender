@@ -4,7 +4,7 @@
 This Electron application gives users a collection of concerts that they may be interested in, based off of their top artists on their Spotify account.
 
 ## How To Use
-To run this program from source you'll need to have Git and Node.js installed.
+To run this program from source you'll need to have Git and Node.js installed, and your own api keys for both spotify and ticketmaster APIs.
 ```bash
 #Clone the repository
 git clone https://github.com/StMrr/Concert-Recommender.git
