@@ -23,6 +23,7 @@ function createMainWindow() {
   });
 }
 
+//receive event messages from the window render process
 ipcMain.on("firstbtnclick", async (event, arg) => {
   await helperFuncs.createAuthWindow();
   event.sender.send("firstbtnclick-task-finished", "yes");
