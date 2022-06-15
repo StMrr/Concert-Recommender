@@ -1,5 +1,5 @@
 {
-  "name": "spotify-concerntrecommender",
+  "name": "concert-recommender",
   "version": "0.0.1",
   "description": "Recommends concerts from TicketMaster through user data from Spotify API.",
   "main": "main.js",
